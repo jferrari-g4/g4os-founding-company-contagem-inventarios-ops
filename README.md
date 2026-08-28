@@ -17,7 +17,20 @@ npm install
 npm run dev
 ```
 
-Sem variáveis Supabase, a interface opera em modo demonstração com `localStorage`. Para produção, configure as variáveis, aplique `supabase/migrations/001_initial_schema.sql` no Supabase e implemente as políticas RLS por perfil.
+Sem variáveis Supabase, a interface opera em modo demonstração com `localStorage`.
+
+## Criar o banco no Supabase
+
+1. Crie um projeto Supabase vazio.
+2. No SQL Editor, execute as migrations na ordem:
+   - `supabase/migrations/001_initial_schema.sql`
+   - `supabase/migrations/002_full_operational_model.sql`
+   - `supabase/migrations/003_security_refinements.sql`
+3. Execute `supabase/seed.sql` para cadastrar os campos, equipamentos e checklist inicial.
+4. Crie o primeiro usuário em **Authentication > Users** e execute o comando comentado no final de `seed.sql` para atribuir o papel `admin`.
+5. Copie apenas `Project URL` e `anon key` para o frontend. A `service_role key` fica somente em variáveis de servidor no Vercel/VPS.
+
+O modelo inclui clientes/contatos, solicitações, opções de data, dimensionamentos, validação de TI, planejamento por blocos, checklists, anexos, histórico de auditoria e fila de notificações para e-mail/Slack.
 
 ## Vercel
 
