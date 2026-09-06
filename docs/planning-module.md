@@ -19,9 +19,9 @@ Fonte: instruções de planejamento e modelo Assaí Feira de Santana recebidos e
    - transporte: data, trajeto, passageiros, quantidade e observações;
    - hospedagem: hóspedes, quartos, entrada, saída e quantidade de hóspedes;
    - observações gerais extensas.
-4. **Pré-contagem:** linhas de data, horário, equipe, quantidade e observação; detalhes livres.
-5. **Equipamentos do cliente:** lista/tabela com equipamento, dia, turno, quantidade, status e observação; detalhes livres.
-6. **Equipamentos Contagem:** mesma estrutura, com catálogo próprio (escadas, EPIs perecíveis etc.) e detalhes livres.
+4. **Equipamentos do cliente:** lista/tabela com equipamento, dia, turno, quantidade, status e observação; detalhes livres.
+5. **Equipamentos Contagem:** mesma estrutura, com catálogo próprio (escadas, EPIs perecíveis etc.) e detalhes livres.
+6. **Pré-contagem:** linhas de data, horário, equipe, quantidade e observação; detalhes livres.
 7. **Dias de inventário:** o usuário adiciona tantos dias quanto necessário. Cada dia tem data, efetivo previsto e sub-blocos configuráveis.
    - depósito: início, equipe, liderança e atividades por linha;
    - câmaras: início, equipe, liderança e atividades por linha;

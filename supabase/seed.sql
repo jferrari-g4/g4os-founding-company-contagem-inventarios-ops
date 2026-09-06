@@ -1,4 +1,15 @@
 -- Dados iniciais. Executar após as migrations.
+insert into public.planning_block_definitions(block_key,label,description,sort_order,required_for_completion) values
+('store','Informações da loja','Unidade, períodos de pré-contagem e inventário, efetivo geral.',10,true),
+('responsibilities','Responsáveis pela operação','Funções e responsáveis configuráveis.',20,true),
+('logistics','Logística','Transporte, hospedagem e observações gerais.',30,false),
+('client_equipment','Equipamentos do cliente','Necessidades acordadas com o cliente, por dia e turno.',40,false),
+('contagem_equipment','Equipamentos Contagem','Recursos próprios por dia e turno.',50,false),
+('pre_count','Pré-contagem','Datas, horários, equipe, quantidade e observações.',60,false),
+('inventory_days','Dias de inventário','Áreas, turnos, equipes e atividades dinâmicas.',70,true),
+('checklists','Checklists','Planejamento e conferência final obrigatória.',80,true)
+on conflict(block_key) do update set label=excluded.label,description=excluded.description,sort_order=excluded.sort_order,required_for_completion=excluded.required_for_completion;
+
 insert into public.custom_fields(entity,field_key,label,field_type,required,active,sort_order) values
 ('project','inventory_type','Tipo de inventário','select',true,true,10),
 ('project','layout_system','Layout / sistema','text',true,true,20),
