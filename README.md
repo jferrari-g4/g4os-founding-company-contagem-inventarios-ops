@@ -28,6 +28,8 @@ Sem variáveis Supabase, a interface opera em modo demonstração com `localStor
    - `supabase/migrations/003_security_refinements.sql`
    - `supabase/migrations/004_planning_block_order.sql`
    - `supabase/migrations/005_harden_database_functions.sql`
+   - `supabase/migrations/006_protect_custom_fields.sql`
+   - `supabase/migrations/007_planning_catalogs.sql`
 3. Execute `supabase/seed.sql` para cadastrar os campos, equipamentos e checklist inicial.
 4. Crie o primeiro usuário em **Authentication > Users** e execute o comando comentado no final de `seed.sql` para atribuir o papel `admin`.
 5. Copie apenas `Project URL` e a `publishable key` para o frontend como `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`. A `service_role key` fica somente em variáveis de servidor no Vercel/VPS.
