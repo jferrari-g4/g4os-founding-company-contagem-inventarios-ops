@@ -30,14 +30,14 @@ Sem variáveis Supabase, a interface opera em modo demonstração com `localStor
    - `supabase/migrations/005_harden_database_functions.sql`
 3. Execute `supabase/seed.sql` para cadastrar os campos, equipamentos e checklist inicial.
 4. Crie o primeiro usuário em **Authentication > Users** e execute o comando comentado no final de `seed.sql` para atribuir o papel `admin`.
-5. Copie apenas `Project URL` e `anon key` para o frontend. A `service_role key` fica somente em variáveis de servidor no Vercel/VPS.
+5. Copie apenas `Project URL` e a `publishable key` para o frontend como `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`. A `service_role key` fica somente em variáveis de servidor no Vercel/VPS.
 
 O modelo inclui clientes/contatos, solicitações, opções de data, dimensionamentos, validação de TI, planejamento por blocos, checklists, anexos, histórico de auditoria e fila de notificações para e-mail/Slack.
 
 ## Vercel
 
 1. Importe o repositório no Vercel.
-2. Configure as variáveis de `.env.example`.
+2. Configure as variáveis de `.env.example`. A interface exige login via Supabase Auth; cadastre o primeiro usuário pela tela e depois atribua o papel `admin` seguindo o comando em `seed.sql`.
 3. Faça deploy. A função `/api/cnpj` já consulta a BrasilAPI pelo servidor.
 4. Configure `CRON_SECRET` para a rota de alerta de dimensionamento; o job roda de hora em hora conforme `vercel.json`.
 

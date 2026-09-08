@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-const url=import.meta.env.VITE_SUPABASE_URL, key=import.meta.env.VITE_SUPABASE_ANON_KEY;
-export const hasSupabase=Boolean(url&&key);
-export const supabase=hasSupabase?createClient(url,key):null;
+const url = import.meta.env.VITE_SUPABASE_URL;
+const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
+export const hasSupabase = Boolean(url && key);
+export const supabase = hasSupabase ? createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } }) : null;
