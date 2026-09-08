@@ -39,7 +39,7 @@ O modelo inclui clientes/contatos, solicitações, opções de data, dimensionam
 1. Importe o repositório no Vercel.
 2. Configure as variáveis de `.env.example`. A interface exige login via Supabase Auth; cadastre o primeiro usuário pela tela e depois atribua o papel `admin` seguindo o comando em `seed.sql`.
 3. Faça deploy. A função `/api/cnpj` já consulta a BrasilAPI pelo servidor.
-4. Configure `CRON_SECRET` para a rota de alerta de dimensionamento; o job roda de hora em hora conforme `vercel.json`.
+4. Configure `CRON_SECRET` para a rota de alerta de dimensionamento; no plano Hobby o job roda diariamente às 09:00 (o plano não permite cron horário).
 
 ## Observações de produção
 
