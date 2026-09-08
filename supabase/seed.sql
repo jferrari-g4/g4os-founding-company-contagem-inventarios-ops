@@ -10,13 +10,13 @@ insert into public.planning_block_definitions(block_key,label,description,sort_o
 ('checklists','Checklists','Planejamento e conferência final obrigatória.',80,true)
 on conflict(block_key) do update set label=excluded.label,description=excluded.description,sort_order=excluded.sort_order,required_for_completion=excluded.required_for_completion;
 
-insert into public.custom_fields(entity,field_key,label,field_type,required,active,sort_order) values
-('project','inventory_type','Tipo de inventário','select',true,true,10),
-('project','layout_system','Layout / sistema','text',true,true,20),
-('project','ti_contact_name','Contato da TI — nome','text',true,true,30),
-('project','ti_contact_email','Contato da TI — e-mail','email',true,true,40),
-('project','ti_contact_phone','Contato da TI — telefone','phone',false,true,50)
-on conflict(field_key) do update set label=excluded.label,required=excluded.required,active=excluded.active;
+insert into public.custom_fields(entity,field_key,label,field_type,required,active,sort_order,system_field) values
+('project','inventory_type','Tipo de inventário','select',true,true,10,true),
+('project','layout_system','Layout / sistema','text',true,true,20,true),
+('project','ti_contact_name','Contato da TI — nome','text',true,true,30,true),
+('project','ti_contact_email','Contato da TI — e-mail','email',true,true,40,true),
+('project','ti_contact_phone','Contato da TI — telefone','phone',false,true,50,true)
+on conflict(field_key) do update set label=excluded.label,required=excluded.required,active=excluded.active,system_field=excluded.system_field;
 
 insert into public.equipment_catalog(owner_type,name) values
 ('client','Empilhadeira'),('client','Escada'),('client','Balança'),('client','Paleteira'),
