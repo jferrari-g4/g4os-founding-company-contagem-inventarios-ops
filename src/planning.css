@@ -14,7 +14,7 @@
 .audit-summary p{font-size:12px;color:#6d6c6c;margin:0}
 .audit-warning{white-space:nowrap;color:#9d351d;background:#ffe5d8;border-radius:20px;padding:4px 8px;font-size:11px;font-weight:700}
 .audit-blocks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
-.audit-blocks article{background:#fff;border:1px solid #eee;border-radius:7px;padding:10px}
+.audit-blocks article{background:#fff;border:1px solid #eee;border-radius:7px;padding:10px}.audit-block-link{cursor:pointer;transition:.16s ease}.audit-block-link:hover{border-color:#9dbce8;background:#f7faff;transform:translateY(-1px)}.audit-block-link:focus-visible{outline:3px solid rgba(94,151,255,.3);outline-offset:2px}.audit-block-link b{text-decoration:underline;text-decoration-color:#9dbce8;text-underline-offset:3px}
 .audit-blocks article>div{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:12px}
 .audit-blocks article>div span{color:#b3151a;font-weight:700}
 .audit-blocks ul{margin:7px 0 0;padding-left:17px;color:#5d5555;font-size:11px;line-height:1.45}
@@ -41,7 +41,7 @@
 .day-card h4{margin:16px 0 8px;font-size:14px}
 .area-templates{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .area-templates button{background:#f7f7f6}
-.checklist{border:1px solid #eee;border-radius:8px;padding:14px;margin:10px 0}
+.checklist{border:1px solid #eee;border-radius:8px;padding:14px;margin:10px 0;scroll-margin-top:24px}
 .checklist h3{margin:0 0 8px}
 .checklist p{font-size:12px;color:#6d6c6c;margin:0 0 8px}
 .check-deadline{display:block;background:#fff4d8;padding:7px 9px;border-radius:6px;margin-bottom:9px;font-size:11px}
