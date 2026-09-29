@@ -2,13 +2,14 @@ import React,{useEffect,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {hasSupabase,supabase} from './supabase';
 import PlanningEditor,{PlanningLists,auditPlanning} from './PlanningEditor';
+import G4OSConnection from './G4OSConnection';
 import './styles.css';
 const demoKey='contagem_ops_demo';
 const defaultFields=[['inventory_type','Tipo de inventário',true],['layout_system','Layout / sistema',true],['ti_contact_name','Contato TI — nome',true],['ti_contact_email','Contato TI — e-mail',true],['ti_contact_phone','Contato TI — telefone',false]].map(([field_key,label,required])=>({id:field_key,field_key,label,required,active:true}));
 const labels={received:'Entrada',awaiting_dimensioning:'Em dimensionamento',awaiting_ti:'Aguardando TI',planning:'Planejamento',awaiting_dates:'Datas enviadas',confirmed:'Confirmada'};
-const tabSlugs={dashboard:'visao-geral',new:'nova-solicitacao',planning:'planejamento',tasks:'pendencias',calendar:'calendario',settings:'campos-e-regras'};
-const navigationItems=[['dashboard','Visão geral','Visão'],['new','Nova solicitação','Nova'],['planning','Planejamento','Planejar'],['tasks','Pendências','Pendências'],['calendar','Calendário','Agenda'],['settings','Configurações','Config.']];
-const pageTitles={dashboard:'Visão geral',new:'Nova solicitação comercial',planning:'Planejamento operacional',tasks:'Pendências operacionais',calendar:'Calendário operacional',settings:'Campos e regras'};
+const tabSlugs={dashboard:'visao-geral',new:'nova-solicitacao',planning:'planejamento',tasks:'pendencias',calendar:'calendario',g4os:'conectar-g4os',settings:'campos-e-regras'};
+const navigationItems=[['dashboard','Visão geral','Visão'],['new','Nova solicitação','Nova'],['planning','Planejamento','Planejar'],['tasks','Pendências','Pendências'],['calendar','Calendário','Agenda'],['g4os','Conectar G4 OS','G4 OS'],['settings','Configurações','Config.']];
+const pageTitles={dashboard:'Visão geral',new:'Nova solicitação comercial',planning:'Planejamento operacional',tasks:'Pendências operacionais',calendar:'Calendário operacional',g4os:'Conectar G4 OS',settings:'Campos e regras'};
 const tabFromHash=()=>{const slug=window.location.hash.replace(/^#\//,'');if(slug==='fila-operacional')return 'planning';return Object.entries(tabSlugs).find(([,value])=>value===slug)?.[0]||'dashboard'};
 const demoRead=()=>{try{const stored=JSON.parse(localStorage.getItem(demoKey))||{};return {fields:stored.fields||defaultFields,requests:stored.requests||[],catalogs:{roles:[],activities:[],equipment:[],checklists:[],tasks:[],...(stored.catalogs||{})}}}catch{return {fields:defaultFields,requests:[],catalogs:{roles:[],activities:[],equipment:[],checklists:[],tasks:[]}}}};
 const demoSave=d=>localStorage.setItem(demoKey,JSON.stringify(d));
@@ -148,6 +149,7 @@ return <div className="app"><a className="skip-link" href="#main-content">Ir par
     {tab==='planning'&&<PlanningEditor projects={data.requests} initialProjectId={planningFocus} user={session?.user} edit={edit} canDimension={canDimension} canApproveTi={canApproveTi} canApprove={canApprove} canEditPlanning={canEditPlanning} canManageTasks={canManageTasks} catalogs={data.catalogs} onUpdateTask={updateProjectTask} onSyncTasks={syncProjectTasks} onDirtyChange={setPlanningDirty} onSaved={load}/>}
     {tab==='tasks'&&<OperationalTasks requests={data.requests} onOpenPlanning={openPlanning} onUpdateTask={updateProjectTask} canManageTasks={canManageTasks}/>}
     {tab==='calendar'&&<OperationalCalendar requests={data.requests}/>}
+    {tab==='g4os'&&<G4OSConnection/>}
     <PlanningLists catalogs={data.catalogs}/>
     {tab==='settings'&&canManageSettings&&<Settings data={data} update={updateFields} remove={removeField} saveTaskTemplate={saveTaskTemplate}/>}
   </main>
