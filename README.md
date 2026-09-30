@@ -56,3 +56,11 @@ O modelo inclui clientes/contatos, solicitações, opções de data, dimensionam
 - E-mail exige provedor configurado (Resend/SMTP); Slack exige Webhook por canal.
 - Não coloque `SUPABASE_SERVICE_ROLE_KEY` no frontend.
 - O PDF e a publicação no Notion serão implementados após o modelo final de PDF e as credenciais/API do Notion serem fornecidos.
+
+## Sincronização diária do Notion
+
+As migrations `030_notion_daily_sync.sql` a `034_finalize_notion_sync_safety.sql` criam o espelho sanitizado, cursores idempotentes, dead-letter, ownership por origem e auditoria. O job `notion-daily-sync-0800-brt` fica preparado para `0 11 * * *` UTC — 08:00 em `America/Sao_Paulo` — mas permanece suspenso até o token passar por dry-run validado.
+
+A Edge Function `notion-daily-sync` consulta as fontes com paginação e materializa clientes, operações, tarefas, coletores e documentos. Somente propriedades em allowlists específicas de cada fonte são persistidas; nomes e conteúdos com sinais de senha, token, CPF, RG, PIX ou dados bancários são redigidos. A fonte `Pagamento de MO` permanece desabilitada até existir destino e revisão financeira próprios. A credencial do cron é gerada no Postgres, fica em texto claro somente no Supabase Vault e é validada por SHA-256.
+
+Para ativar a carga real, configure `NOTION_TOKEN` em **Supabase > Edge Functions > Secrets** e compartilhe diretamente com a integração interna as bases originais listadas em `public.notion_sync_sources`. Faça primeiro um dry-run controlado e revise contagens/conflitos; só depois chame `private.enable_notion_sync_schedule()` com `service_role`. Não informe o token no chat nem o salve em `.env` versionado.

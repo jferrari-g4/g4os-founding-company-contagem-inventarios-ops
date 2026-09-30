@@ -1,0 +1,2 @@
+[functions.notion-daily-sync]
+verify_jwt = false
