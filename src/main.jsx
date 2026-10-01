@@ -6,7 +6,7 @@ import G4OSConnection from './G4OSConnection';
 import AdminSettings from './AdminSettings';
 import './styles.css';
 const demoKey='contagem_ops_demo';
-const defaultFields=[['inventory_type','Tipo de inventário',true],['layout_system','Layout / sistema',true],['ti_contact_name','Contato TI — nome',true],['ti_contact_email','Contato TI — e-mail',true],['ti_contact_phone','Contato TI — telefone',false]].map(([field_key,label,required])=>({id:field_key,field_key,label,required,active:true}));
+const defaultFields=[['inventory_type','Tipo de inventário',true],['layout_system','Layout / sistema',true],['ti_contact_name','Contato TI — nome',true],['ti_contact_email','Contato TI — e-mail',true],['ti_contact_phone','Contato TI — telefone',false]].map(([field_key,label,required])=>({id:field_key,field_key,label,required,active:true,system_field:true,field_type:field_key.includes('email')?'email':field_key.includes('phone')?'phone':'text',stage:'request',sort_order:100}));
 const labels={received:'Entrada',awaiting_dimensioning:'Em dimensionamento',awaiting_ti:'Aguardando TI',planning:'Planejamento',awaiting_dates:'Datas enviadas',confirmed:'Confirmada'};
 const tabSlugs={dashboard:'visao-geral',new:'nova-solicitacao',planning:'planejamento',tasks:'pendencias',calendar:'calendario',g4os:'conectar-g4os',settings:'campos-e-regras'};
 const navigationItems=[['dashboard','Visão geral','Visão'],['new','Nova solicitação','Nova'],['planning','Planejamento','Planejar'],['tasks','Pendências','Pendências'],['calendar','Calendário','Agenda'],['g4os','Conectar G4 OS','G4 OS'],['settings','Configurações','Config.']];
