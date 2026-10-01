@@ -4,6 +4,9 @@ verify_jwt = false
 [functions.notion-oauth]
 verify_jwt = false
 
+[functions.contagem-user-bootstrap]
+verify_jwt = false
+
 [functions.contagem-admin]
 verify_jwt = true
 
