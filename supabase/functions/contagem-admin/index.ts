@@ -14,13 +14,16 @@ Deno.serve(async req=>{
   const db=createClient(url,service,{auth:{autoRefreshToken:false,persistSession:false}});
   const {data:{user},error:userError}=await db.auth.getUser(bearer);
   if(userError||!user)return json({error:"Sessão inválida."},401);
-  const [{data:adminRole},{data:profile}]=await Promise.all([db.from("user_roles").select("role").eq("user_id",user.id).eq("role","admin").maybeSingle(),db.from("profiles").select("active").eq("id",user.id).maybeSingle()]);
+  const [{data:adminRole},{data:profile}]=await Promise.all([db.from("user_roles").select("role").eq("user_id",user.id).eq("role","admin").maybeSingle(),db.from("profiles").select("active,must_change_password").eq("id",user.id).maybeSingle()]);
   if(!profile?.active)return json({error:"Usuário inativo."},403);
   let body:any={};try{body=await req.json()}catch{return json({error:"JSON inválido."},400)}
   const action=String(body.action||"");
   try{
+    if(action==="complete_password_setup"){
+      const {error:completeError}=await db.from("profiles").update({must_change_password:false}).eq("id",user.id);if(completeError)throw completeError;return json({completed:true});
+    }
     if(action==="list_users"){
-      const [{data:profiles,error:pe},{data:roles,error:re}]=await Promise.all([db.from("profiles").select("id,full_name,email,job_title,active,created_at,updated_at").order("full_name"),db.from("user_roles").select("user_id,role")]);
+      const [{data:profiles,error:pe},{data:roles,error:re}]=await Promise.all([db.from("profiles").select("id,full_name,email,job_title,active,must_change_password,created_at,updated_at").order("full_name"),db.from("user_roles").select("user_id,role")]);
       if(pe)throw pe;if(re)throw re;
       const visibleProfiles=adminRole?(profiles||[]):(profiles||[]).filter(item=>item.active);
       return json({users:visibleProfiles.map(profile=>({...profile,roles:(roles||[]).filter(item=>item.user_id===profile.id).map(item=>item.role)})),can_manage:!!adminRole});
@@ -30,7 +33,7 @@ Deno.serve(async req=>{
       const email=String(body.email||"").trim().toLowerCase();const fullName=String(body.full_name||"").trim();const roleList=Array.isArray(body.roles)?body.roles.map(String):["viewer"];
       if(!/^\S+@\S+\.\S+$/.test(email))throw new Error("E-mail inválido.");if(!roleList.length||roleList.some(role=>!rolesAllowed.has(role)))throw new Error("Informe ao menos um papel válido.");
       const {data,error}=await db.auth.admin.inviteUserByEmail(email,{data:{full_name:fullName||email}});if(error)throw error;const invited=data.user;if(!invited)throw new Error("Convite não criado.");
-      try{const profileResult=await db.from("profiles").upsert({id:invited.id,full_name:fullName||email,email,job_title:String(body.job_title||"").trim()||null,active:true},{onConflict:"id"});if(profileResult.error)throw profileResult.error;
+      try{const profileResult=await db.from("profiles").upsert({id:invited.id,full_name:fullName||email,email,job_title:String(body.job_title||"").trim()||null,active:true,must_change_password:true},{onConflict:"id"});if(profileResult.error)throw profileResult.error;
       await db.from("user_roles").delete().eq("user_id",invited.id);
       const {error:roleError}=await db.from("user_roles").insert(roleList.map(role=>({user_id:invited.id,role})));if(roleError)throw roleError;
       await db.from("audit_logs").insert({entity:"profiles",entity_id:invited.id,action:"user_invited",after_data:{email,roles:roleList},actor_id:user.id});
