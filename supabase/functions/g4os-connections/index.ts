@@ -14,10 +14,10 @@ Deno.serve(async(req)=>{
   const caller=createClient(url,anon,{global:{headers:{Authorization:authorization}}});
   const {data:{user},error:authError}=await caller.auth.getUser();
   if(authError||!user)return response({error:"Sessão inválida."},401);
-  const {data:roles,error:roleError}=await caller.from("user_roles").select("role").eq("user_id",user.id).limit(20);
-  if(roleError||!roles?.length)return response({error:"Seu usuário não possui perfil operacional ativo."},403);
+  const [{data:roles,error:roleError},{data:profile,error:profileError}]=await Promise.all([caller.from("user_roles").select("role").eq("user_id",user.id).limit(20),caller.from("profiles").select("active").eq("id",user.id).maybeSingle()]);
+  if(roleError||profileError||!profile?.active||!roles?.length)return response({error:"Seu usuário não possui perfil operacional ativo."},403);
   const admin=createClient(url,service,{auth:{autoRefreshToken:false,persistSession:false}});
-  let input:{action?:string;connectionId?:string;label?:string}={};try{input=await req.json()}catch{return response({error:"JSON inválido."},400)}
+  let input:{action?:string;connectionId?:string;label?:string;scopes?:string[]}={};try{input=await req.json()}catch{return response({error:"JSON inválido."},400)}
   const endpoint=`${url}/functions/v1/contagem-ops-mcp`;
   const columns="id,owner_user_id,label,token_prefix,scopes,active,created_at,last_used_at,revoked_at";
   if(input.action==="list"){
@@ -26,14 +26,12 @@ Deno.serve(async(req)=>{
     return response({endpoint,connections:connections.data??[],events:events.data??[]});
   }
   if(input.action==="create"||input.action==="rotate"){
-    const {data:active,error}=await admin.from("contagem_g4os_connections").select("id").eq("owner_user_id",user.id).eq("active",true).maybeSingle();
-    if(error)return response({error:"Não foi possível verificar a conexão atual."},500);
-    if(active&&input.action==="create")return response({error:"Já existe uma conexão ativa. Rotacione ou revogue a credencial atual."},409);
-    if(active)await admin.from("contagem_g4os_connections").update({active:false,revoked_at:new Date().toISOString()}).eq("id",active.id);
-    const token=generateToken();const token_hash=await sha256(token);
-    const {data,error:insertError}=await admin.from("contagem_g4os_connections").insert({owner_user_id:user.id,label:input.label?.trim().slice(0,80)||"G4 OS",token_hash,token_prefix:`${token.slice(0,12)}…`,scopes:["read","write"]}).select(columns).single();
-    if(insertError)return response({error:"Não foi possível criar a conexão."},500);
-    await admin.from("contagem_g4os_events").insert({connection_id:data.id,actor_user_id:user.id,tool_name:"connection.created",operation:"AUTH",success:true,details:{rotated:input.action==="rotate"}});
+    const requestedScopes=Array.isArray(input.scopes)?[...new Set(input.scopes.map(String))]:["read","write"];
+    if(!requestedScopes.length||requestedScopes.some(scope=>!["read","write"].includes(scope)))return response({error:"Escopos inválidos."},400);
+    const token=generateToken();const token_hash=await sha256(token);const prefix=`${token.slice(0,12)}…`;
+    const {data,error:rotateError}=await admin.rpc("g4os_rotate_connection",{p_owner_user_id:user.id,p_label:input.label?.trim().slice(0,80)||"G4 OS",p_token_hash:token_hash,p_token_prefix:prefix,p_scopes:requestedScopes,p_rotate:input.action==="rotate"});
+    if(rotateError)return response({error:rotateError.message.includes("Já existe")?"Já existe uma conexão ativa. Rotacione ou revogue a credencial atual.":"Não foi possível criar a conexão."},rotateError.message.includes("Já existe")?409:500);
+    await admin.from("contagem_g4os_events").insert({connection_id:data.id,actor_user_id:user.id,tool_name:"connection.created",operation:"AUTH",success:true,details:{rotated:input.action==="rotate",scopes:requestedScopes}});
     return response({endpoint,connection:data,token,warning:"Copie agora. Por segurança, este token não será exibido novamente."},201);
   }
   if(input.action==="revoke"){
