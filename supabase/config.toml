@@ -1,6 +1,9 @@
 [functions.notion-daily-sync]
 verify_jwt = false
 
+[functions.notion-oauth]
+verify_jwt = false
+
 [functions.contagem-admin]
 verify_jwt = true
 

@@ -36,6 +36,40 @@ const sha256 = async (value: string) => {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 };
 
+async function resolveNotionToken(db: any) {
+  const oauthResult = await db.rpc("get_notion_oauth_tokens");
+  const stored = Array.isArray(oauthResult.data) ? oauthResult.data[0] : oauthResult.data;
+  let accessToken = stored?.access_token || "";
+  const refreshToken = stored?.refresh_token || "";
+  const clientId = Deno.env.get("NOTION_OAUTH_CLIENT_ID") || "";
+  const clientSecret = Deno.env.get("NOTION_OAUTH_CLIENT_SECRET") || "";
+
+  if (refreshToken && clientId && clientSecret) {
+    const refreshed = await fetch("https://api.notion.com/v1/oauth/token", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`${clientId}:${clientSecret}`)}`,
+        "Content-Type": "application/json",
+        "Notion-Version": NOTION_VERSION,
+      },
+      body: JSON.stringify({ grant_type: "refresh_token", refresh_token: refreshToken }),
+    });
+    const payload = await refreshed.json().catch(() => ({}));
+    if (refreshed.ok && payload.access_token) {
+      accessToken = payload.access_token;
+      const rotated = await db.rpc("store_notion_oauth_tokens", {
+        p_access_token: payload.access_token,
+        p_refresh_token: payload.refresh_token || refreshToken,
+      });
+      if (rotated.error) throw new Error("Falha ao rotacionar tokens OAuth do Notion.");
+    } else if (!accessToken) {
+      throw new Error("Não foi possível renovar a autorização OAuth do Notion.");
+    }
+  }
+
+  return accessToken || Deno.env.get("NOTION_TOKEN") || "";
+}
+
 const ALLOWLISTS: Record<string, Set<string>> = {
   agendamento: new Set(["nos", "numeroos", "os", "inventario", "status", "cnpjclientefilialloja", "cliente", "cadastrocliente", "clienteloja", "filialloja", "tipodeinventario", "equipetotal", "tequipe"]),
   cadastro_clientes: new Set(["cnpj", "cliente", "razaosocial", "filialloja", "clienteloja", "endereco", "cidade", "estado", "codigo"]),
@@ -489,8 +523,8 @@ Deno.serve(async (req) => {
   const presentedHash = await sha256(req.headers.get("x-cron-secret") ?? "");
   const credential = await must(db.from("notion_sync_credentials").select("id").eq("secret_hash", presentedHash).eq("active", true).limit(1).maybeSingle(), "Validar credencial interna");
   if (!credential.data?.id) return json({ error: "Credencial de sincronização inválida." }, 401);
-  const notionToken = Deno.env.get("NOTION_TOKEN");
-  if (!notionToken) return json({ error: "NOTION_TOKEN não configurado." }, 503);
+  const notionToken = await resolveNotionToken(db);
+  if (!notionToken) return json({ error: "Notion não autorizado. Configure OAuth ou NOTION_TOKEN." }, 503);
   let input: SyncInput = {};
   try { input = await req.json(); } catch { input = {}; }
   const triggerKind = input.dry_run ? "dry_run" : "scheduled";
