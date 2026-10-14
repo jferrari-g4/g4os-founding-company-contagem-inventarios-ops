@@ -14,3 +14,6 @@ verify_jwt = true
 
 [functions.contagem-ops-mcp]
 verify_jwt = false
+
+[functions.dimensioning-alerts]
+verify_jwt = false

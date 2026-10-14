@@ -1,2 +1,13 @@
-import {createClient} from '@supabase/supabase-js';
-export default async function handler(req,res){if(req.headers.authorization!==`Bearer ${process.env.CRON_SECRET}`)return res.status(401).json({error:'Não autorizado'});const db=createClient(process.env.SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY);const cutoff=new Date(Date.now()-864e5).toISOString();const {data,error}=await db.from('projects').select('id,reference,client:clients(legal_name)').eq('status','awaiting_dimensioning').lt('created_at',cutoff);if(error)return res.status(500).json({error:error.message});const text=`Contagem Ops: ${data.length} solicitação(ões) de dimensionamento abertas há mais de 24h.`;if(data.length&&process.env.SLACK_WEBHOOK_URL)await fetch(process.env.SLACK_WEBHOOK_URL,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text})});return res.status(200).json({sent:data.length})}
+export default async function handler(req, res) {
+  if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
+    return res.status(401).json({ error: 'Não autorizado' });
+  }
+  const base = String(process.env.SUPABASE_URL || '').replace(/\/$/, '');
+  const response = await fetch(`${base}/functions/v1/dimensioning-alerts`, {
+    method: 'POST',
+    headers: { Authorization: req.headers.authorization, 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  const body = await response.json().catch(() => ({ error: 'Resposta inválida do Supabase' }));
+  return res.status(response.status).json(body);
+}
