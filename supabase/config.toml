@@ -1,3 +1,5 @@
+project_id = "phrcjwxdpinpwstdjkdt"
+
 [functions.notion-daily-sync]
 verify_jwt = false
 

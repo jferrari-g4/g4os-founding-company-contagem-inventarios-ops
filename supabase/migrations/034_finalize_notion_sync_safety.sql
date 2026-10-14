@@ -36,7 +36,7 @@ begin
     'notion-daily-sync-0800-brt','0 11 * * *',
     $cron$
     select net.http_post(
-      url := 'https://racxkiswyjilfnzwmzqb.supabase.co/functions/v1/notion-daily-sync',
+      url := 'https://phrcjwxdpinpwstdjkdt.supabase.co/functions/v1/notion-daily-sync',
       headers := jsonb_build_object('Content-Type','application/json','x-cron-secret',(select decrypted_secret from vault.decrypted_secrets where name='notion_sync_secret' limit 1)),
       body := jsonb_build_object('max_pages_per_source',10,'full',extract(isodow from timezone('America/Sao_Paulo',now()))=7),
       timeout_milliseconds := 120000

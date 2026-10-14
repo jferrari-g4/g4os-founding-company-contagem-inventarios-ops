@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const NOTION_VERSION = "2026-03-11";
-const REDIRECT_URI = "https://racxkiswyjilfnzwmzqb.supabase.co/functions/v1/notion-oauth/callback";
+const REDIRECT_URI = "https://phrcjwxdpinpwstdjkdt.supabase.co/functions/v1/notion-oauth/callback";
 
 const html = (title: string, message: string, status = 200) =>
   new Response(`<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title}</title><style>body{margin:0;background:#f6f7f8;color:#242323;font-family:Inter,Arial,sans-serif;display:grid;min-height:100vh;place-items:center}.card{width:min(560px,calc(100% - 40px));background:#fff;border:1px solid #e4e5e7;border-radius:18px;padding:32px;box-shadow:0 18px 55px rgba(36,35,35,.08)}.brand{font-size:12px;font-weight:900;letter-spacing:.12em;color:#EC2226}.status{display:inline-block;margin-top:20px;border-radius:99px;background:#e8f7ee;color:#18733d;padding:7px 10px;font-size:12px;font-weight:800}h1{font-size:28px;margin:14px 0 10px}p{color:#676b72;line-height:1.6;margin:0}</style></head><body><main class="card"><div class="brand">CONTAGEM OPS</div><span class="status">${status < 400 ? "CONEXÃO SEGURA" : "ATENÇÃO"}</span><h1>${title}</h1><p>${message}</p></main></body></html>`, {

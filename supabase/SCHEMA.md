@@ -33,7 +33,7 @@ Gerado em **06/10/2026 às 23:54 (America/Sao_Paulo)** para preparar a futura mi
 ## Procedimento seguro de migração
 
 1. Criar e autorizar o projeto Supabase de destino.
-2. Substituir referências ao projeto atual `racxkiswyjilfnzwmzqb` nas migrations/funções de cron pelo novo projeto.
+2. Se houver nova troca de ambiente, substituir as referências a `phrcjwxdpinpwstdjkdt` nas migrations, funções de cron e callback OAuth pelo projeto de destino.
 3. Aplicar `schema.sql` em banco vazio com parada no primeiro erro.
 4. Recriar os segredos no Vault e nas Edge Functions pelo cofre seguro.
 5. Publicar as Edge Functions do diretório `functions/`.

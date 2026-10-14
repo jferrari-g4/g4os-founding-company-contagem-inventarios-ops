@@ -4,6 +4,7 @@ const allowedEmails = new Set([
   "balbino@contageminventarios.com.br",
   "estoque@contandoporvoce.com.br",
   "simonsen@contandoporvoce.com.br",
+  "j.ferrari@g4educacao.com",
 ]);
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
@@ -32,7 +33,7 @@ Deno.serve(async (req) => {
   let body: any = {};
   try { body = await req.json(); } catch { return json({ error: "JSON inválido." }, 400); }
   const emails = Array.isArray(body.emails) ? [...new Set(body.emails.map((item: unknown) => String(item).trim().toLowerCase()))] : [];
-  if (emails.length !== 3 || emails.some((email) => !allowedEmails.has(email))) {
+  if (emails.length !== allowedEmails.size || emails.some((email) => !allowedEmails.has(email))) {
     return json({ error: "Lote de bootstrap não autorizado." }, 403);
   }
 
@@ -48,9 +49,22 @@ Deno.serve(async (req) => {
       let invited = false;
       if (!user) {
         const invitation = await db.auth.admin.inviteUserByEmail(email, { data: { full_name: email } });
-        if (invitation.error || !invitation.data.user) throw invitation.error || new Error(`Convite não criado para ${email}.`);
-        user = invitation.data.user;
-        invited = true;
+        if (invitation.data.user) {
+          user = invitation.data.user;
+          invited = true;
+        } else {
+          // O rate limit de e-mail não deve bloquear uma migração. Provisiona sem senha
+          // compartilhada; a pessoa define a própria senha pelo fluxo de recuperação.
+          const provisioned = await db.auth.admin.createUser({
+            email,
+            email_confirm: false,
+            user_metadata: { full_name: email, migrated_without_password: true },
+          });
+          if (provisioned.error || !provisioned.data.user) {
+            throw invitation.error || provisioned.error || new Error(`Usuário não criado para ${email}.`);
+          }
+          user = provisioned.data.user;
+        }
       }
 
       const profile = await db.from("profiles").upsert({

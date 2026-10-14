@@ -53,7 +53,7 @@ select cron.schedule(
   '0 11 * * *',
   $cron$
   select net.http_post(
-    url := 'https://racxkiswyjilfnzwmzqb.supabase.co/functions/v1/notion-daily-sync',
+    url := 'https://phrcjwxdpinpwstdjkdt.supabase.co/functions/v1/notion-daily-sync',
     headers := jsonb_build_object(
       'Content-Type','application/json',
       'x-cron-secret',(select decrypted_secret from vault.decrypted_secrets where name='notion_sync_secret' limit 1)

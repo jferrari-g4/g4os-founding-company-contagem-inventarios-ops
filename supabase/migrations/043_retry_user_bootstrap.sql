@@ -40,7 +40,7 @@ begin
   end if;
 
   select net.http_post(
-    url := 'https://racxkiswyjilfnzwmzqb.supabase.co/functions/v1/contagem-user-bootstrap',
+    url := 'https://phrcjwxdpinpwstdjkdt.supabase.co/functions/v1/contagem-user-bootstrap',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'x-bootstrap-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'contagem_user_bootstrap_secret' limit 1)
@@ -49,7 +49,8 @@ begin
       'emails', jsonb_build_array(
         'balbino@contageminventarios.com.br',
         'estoque@contandoporvoce.com.br',
-        'simonsen@contandoporvoce.com.br'
+        'simonsen@contandoporvoce.com.br',
+        'j.ferrari@g4educacao.com'
       )
     ),
     timeout_milliseconds := 120000
@@ -65,10 +66,6 @@ select cron.unschedule(jobid)
 from cron.job
 where jobname = 'contagem-user-bootstrap-retry';
 
-select cron.schedule(
-  'contagem-user-bootstrap-retry',
-  '10 * * * *',
-  $cron$select private.invoke_contagem_user_bootstrap_if_active();$cron$
-);
-
-comment on function public.finish_contagem_user_bootstrap(uuid) is 'Consome a credencial de bootstrap e remove o retry após os três usuários serem confirmados.';
+-- O bootstrap é disparado explicitamente após o deploy da Edge Function.
+-- Não agendar automaticamente em novos ambientes.
+comment on function public.finish_contagem_user_bootstrap(uuid) is 'Consome a credencial de bootstrap e remove o retry após os usuários aprovados serem confirmados.';

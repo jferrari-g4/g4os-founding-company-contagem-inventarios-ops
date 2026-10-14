@@ -53,7 +53,7 @@ security definer
 set search_path = ''
 as $$
   select net.http_post(
-    url := 'https://racxkiswyjilfnzwmzqb.supabase.co/functions/v1/contagem-user-bootstrap',
+    url := 'https://phrcjwxdpinpwstdjkdt.supabase.co/functions/v1/contagem-user-bootstrap',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
       'x-bootstrap-secret', (select decrypted_secret from vault.decrypted_secrets where name = 'contagem_user_bootstrap_secret' limit 1)
